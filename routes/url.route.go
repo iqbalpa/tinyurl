@@ -1,10 +1,15 @@
 package routes
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"tinyurl/dto"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 func UrlRoutes(api fiber.Router) {
 	api.Route("/url", func(urlRouter fiber.Router) {
 		urlRouter.Get("/", testHandler)
+		urlRouter.Post("/shorten", shortenUrlHandler)
 	})
 }
 
@@ -14,3 +19,14 @@ func testHandler(c *fiber.Ctx) error {
 	})
 }
 
+func shortenUrlHandler(c *fiber.Ctx) error {
+	url := new(dto.UrlRequest)
+
+	if err := c.BodyParser(url); err != nil {
+		return err
+	}
+
+	return c.JSON(fiber.Map{
+		"shortUrl": url,
+	})
+}
