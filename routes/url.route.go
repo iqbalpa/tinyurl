@@ -2,24 +2,37 @@ package routes
 
 import (
 	"tinyurl/dto"
+	"tinyurl/services"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func UrlRoutes(api fiber.Router) {
-	api.Route("/url", func(urlRouter fiber.Router) {
-		urlRouter.Get("/", testHandler)
-		urlRouter.Post("/shorten", shortenUrlHandler)
+type UrlRoute struct {
+	router fiber.Router
+	service *services.UrlService
+}
+
+func NewUrlRoute(router fiber.Router, service *services.UrlService) *UrlRoute {
+	return &UrlRoute{
+		router: router, 
+		service: service,
+	}
+}
+
+func (r *UrlRoute) UrlRoutes() {
+	r.router.Route("/url", func(urlRouter fiber.Router) {
+		urlRouter.Get("/", r.testHandler)
+		urlRouter.Post("/shorten", r.shortenUrlHandler)
 	})
 }
 
-func testHandler(c *fiber.Ctx) error {
+func (r *UrlRoute) testHandler(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "currently at /api/url/",
 	})
 }
 
-func shortenUrlHandler(c *fiber.Ctx) error {
+func (r *UrlRoute) shortenUrlHandler(c *fiber.Ctx) error {
 	url := new(dto.UrlRequest)
 
 	if err := c.BodyParser(url); err != nil {

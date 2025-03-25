@@ -17,7 +17,8 @@ func main() {
 	app := fiber.New()
 	api := app.Group("/api")
 
-	routes.UrlRoutes(api)
+	urlRoute := routes.NewUrlRoute(api, urlService)
+	urlRoute.UrlRoutes()
 
 	app.Listen(":3000")
 }
