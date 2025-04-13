@@ -23,6 +23,7 @@ func (r *UrlRoute) UrlRoutes() {
 	r.router.Route("/url", func(urlRouter fiber.Router) {
 		urlRouter.Get("/", r.testHandler)
 		urlRouter.Post("/shorten", r.shortenUrlHandler)
+		urlRouter.Get("/:shortUrl", r.redirectShortUrl)
 	})
 }
 
@@ -42,4 +43,14 @@ func (r *UrlRoute) shortenUrlHandler(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"shortUrl": url,
 	})
+}
+
+func (r *UrlRoute) redirectShortUrl(c *fiber.Ctx) error {
+	url, err := r.service.GetByShortUrl(c.Params("shortUrl"))
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "URL not found",
+		})
+	}
+	return c.Redirect(url.LongUrl, fiber.StatusMovedPermanently)
 }
